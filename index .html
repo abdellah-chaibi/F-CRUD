@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Gestion des Athlètes</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a0f;
+      --surface: #13131a;
+      --card: #1a1a26;
+      --border: #2a2a3d;
+      --accent: #e8ff47;
+      --accent2: #47b8ff;
+      --text: #f0f0f8;
+      --muted: #6b6b88;
+      --danger: #ff4757;
+      --success: #2ecc71;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+      background-image:
+        radial-gradient(ellipse at 10% 0%, rgba(71,184,255,0.08) 0%, transparent 60%),
+        radial-gradient(ellipse at 90% 100%, rgba(232,255,71,0.06) 0%, transparent 50%);
+    }
+
+    /* ─── HEADER ─── */
+    header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+    header h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(3rem, 8vw, 6rem);
+      letter-spacing: 0.08em;
+      line-height: 1;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    header p {
+      color: var(--muted);
+      font-size: 0.9rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-top: 0.4rem;
+    }
+
+    /* ─── LAYOUT ─── */
+    .wrapper {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      gap: 2rem;
+    }
+
+    /* ─── FORM CARD ─── */
+    .form-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .form-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+    }
+
+    .form-card h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.5rem;
+      letter-spacing: 0.1em;
+      color: var(--accent);
+      margin-bottom: 1.8rem;
+    }
+
+    /* ─── FORM GRID ─── */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.2rem;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .field label {
+      font-size: 0.72rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .field input[type="text"],
+    .field input[type="number"],
+    .field select {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      padding: 0.7rem 1rem;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+      -webkit-appearance: none;
+    }
+    .field input:focus,
+    .field select:focus {
+      border-color: var(--accent2);
+      box-shadow: 0 0 0 3px rgba(71,184,255,0.12);
+    }
+    .field select option {
+      background: var(--surface);
+    }
+
+    /* ─── RADIO & CHECKBOX ─── */
+    .radio-group, .check-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-top: 0.2rem;
+    }
+    .radio-group label,
+    .check-group label {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      font-size: 0.88rem;
+      color: var(--text);
+      text-transform: none;
+      letter-spacing: 0;
+      cursor: pointer;
+      padding: 0.4rem 0.8rem;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .radio-group label:has(input:checked),
+    .check-group label:has(input:checked) {
+      border-color: var(--accent);
+      background: rgba(232,255,71,0.08);
+      color: var(--accent);
+    }
+    .radio-group input,
+    .check-group input {
+      accent-color: var(--accent);
+      width: 14px; height: 14px;
+    }
+
+    /* ─── FULL WIDTH FIELD ─── */
+    .full { grid-column: 1 / -1; }
+
+    /* ─── BUTTONS ROW ─── */
+    .btn-row {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.8rem;
+      flex-wrap: wrap;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.8rem;
+      border-radius: 8px;
+      border: none;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 600;
+      font-size: 0.9rem;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary {
+      background: var(--accent);
+      color: #0a0a0f;
+    }
+    .btn-primary:hover { box-shadow: 0 0 20px rgba(232,255,71,0.35); }
+    .btn-secondary {
+      background: transparent;
+      color: var(--accent2);
+      border: 1px solid var(--accent2);
+    }
+    .btn-secondary:hover { background: rgba(71,184,255,0.08); }
+    .btn-danger-outline {
+      background: transparent;
+      color: var(--danger);
+      border: 1px solid var(--danger);
+    }
+    .btn-danger-outline:hover { background: rgba(255,71,87,0.08); }
+
+    /* ─── TABLE SECTION ─── */
+    .table-section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+    .table-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.5rem 2rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .table-header h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.4rem;
+      letter-spacing: 0.1em;
+      color: var(--accent2);
+    }
+    .count-badge {
+      background: rgba(71,184,255,0.1);
+      color: var(--accent2);
+      border: 1px solid rgba(71,184,255,0.25);
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    /* ─── TABLE ─── */
+    .table-wrap { overflow-x: auto; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    thead th {
+      background: var(--surface);
+      padding: 0.85rem 1.2rem;
+      text-align: left;
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background 0.18s;
+    }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr.data:hover { background: rgba(255,255,255,0.03); }
+    tbody td {
+      padding: 1rem 1.2rem;
+      font-size: 0.9rem;
+      vertical-align: middle;
+    }
+
+    /* inline action buttons */
+    .sup, .edit {
+      padding: 0.35rem 0.8rem;
+      border-radius: 6px;
+      border: none;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.12s;
+    }
+    .sup:active, .edit:active { transform: scale(0.95); }
+    .sup {
+      background: rgba(255,71,87,0.12);
+      color: var(--danger);
+      margin-right: 0.4rem;
+    }
+    .sup:hover { background: rgba(255,71,87,0.22); }
+    .edit {
+      background: rgba(71,184,255,0.12);
+      color: var(--accent2);
+    }
+    .edit:hover { background: rgba(71,184,255,0.22); }
+
+    /* ─── EMPTY STATE ─── */
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: var(--muted);
+    }
+    .empty-state .icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      opacity: 0.4;
+    }
+    .empty-state p { font-size: 0.9rem; }
+
+    /* ─── TOAST (optional feedback) ─── */
+    @keyframes slideIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 600px) {
+      .form-card { padding: 1.5rem; }
+      .btn-row { flex-direction: column; }
+      .btn { width: 100%; justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Sport Manager</h1>
+  <p>Gestion des inscriptions des athlètes</p>
+</header>
+
+<div class="wrapper">
+
+  <!-- ── FORM ── -->
+  <div class="form-card">
+    <h2>➕ Ajouter un Athlète</h2>
+    <form name="form1" id="form1">
+      <div class="form-grid">
+
+        <div class="field">
+          <label for="nominput">Nom</label>
+          <input type="text" id="nominput" placeholder="Ex: Benali" required />
+        </div>
+
+        <div class="field">
+          <label for="prenominput">Prénom</label>
+          <input type="text" id="prenominput" placeholder="Ex: Youssef" required />
+        </div>
+
+        <div class="field">
+          <label for="ageinput">Âge</label>
+          <input type="number" id="ageinput" min="5" max="100" placeholder="23" required />
+        </div>
+
+        <div class="field">
+          <label for="paysoption">Pays</label>
+          <select id="paysoption">
+            <option value="Maroc">🇲🇦 Maroc</option>
+            <option value="France">🇫🇷 France</option>
+            <option value="Espagne">🇪🇸 Espagne</option>
+            <option value="Algérie">🇩🇿 Algérie</option>
+            <option value="Tunisie">🇹🇳 Tunisie</option>
+            <option value="Egypte">🇪🇬 Egypte</option>
+            <option value="USA">🇺🇸 USA</option>
+            <option value="Autre">🌍 Autre</option>
+          </select>
+        </div>
+
+        <div class="field full">
+          <label>Sexe</label>
+          <div class="radio-group">
+            <label><input type="radio" name="sexe" value="Homme" /> Homme</label>
+            <label><input type="radio" name="sexe" value="Femme" /> Femme</label>
+          </div>
+        </div>
+
+        <div class="field full">
+          <label>Discipline(s)</label>
+          <div class="check-group">
+            <label><input type="checkbox" value="Football" /> ⚽ Football</label>
+            <label><input type="checkbox" value="Basketball" /> 🏀 Basketball</label>
+            <label><input type="checkbox" value="Tennis" /> 🎾 Tennis</label>
+            <label><input type="checkbox" value="Natation" /> 🏊 Natation</label>
+            <label><input type="checkbox" value="Athlétisme" /> 🏃 Athlétisme</label>
+            <label><input type="checkbox" value="Boxe" /> 🥊 Boxe</label>
+            <label><input type="checkbox" value="Cyclisme" /> 🚴 Cyclisme</label>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="btn-row">
+        <button type="submit" class="btn btn-primary">✚ Ajouter</button>
+        <button type="button" class="btn btn-secondary" onclick="send()">💾 Sauvegarder</button>
+        <button type="button" class="btn btn-danger-outline" onclick="getdata()">📂 Charger</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- ── TABLE ── -->
+  <div class="table-section">
+    <div class="table-header">
+      <h2>📋 Liste des Athlètes</h2>
+      <span class="count-badge" id="countBadge">0 entrée(s)</span>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Nom</th>
+            <th>Prénom</th>
+            <th>Âge</th>
+            <th>Pays</th>
+            <th>Sexe</th>
+            <th>Discipline(s)</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="table1">
+          <tr id="emptyRow">
+            <td colspan="7">
+              <div class="empty-state">
+                <div class="icon">🏅</div>
+                <p>Aucun athlète enregistré. Remplissez le formulaire pour commencer.</p>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ─── update count badge & empty row ───
+function updateUI() {
+  const rows = document.querySelectorAll('#table1 .data');
+  document.getElementById('countBadge').textContent = rows.length + ' entrée(s)';
+  const emptyRow = document.getElementById('emptyRow');
+  if (emptyRow) emptyRow.style.display = rows.length > 0 ? 'none' : '';
+}
+</script>
+<script src="script.js"></script>
+<script>
+// call once on load
+updateUI();
+// patch form submit to also updateUI
+const _orig = form1.onsubmit;
+form1.onsubmit = function(e) {
+  _orig.call(this, e);
+  updateUI();
+};
+</script>
+
+</body>
+</html>
